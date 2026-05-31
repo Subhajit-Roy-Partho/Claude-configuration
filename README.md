@@ -11,7 +11,8 @@ Personal Claude Code configuration — skills, global CLAUDE.md, and settings �
 | Path | Purpose |
 |------|---------|
 | `CLAUDE.md` | Global Claude Code instructions loaded into every session |
-| `settings.json` | Global `~/.claude/settings.json` — theme, plugins, effort level |
+| `settings.json` | Global `~/.claude/settings.json` — theme, plugins, effort level, hooks |
+| `.env.example` | Template for `~/.claude/.env` — GitHub token and other secrets |
 | `skills/agents-md/` | `/agents-md` skill — AGENTS.md task tracker for session resilience |
 | `skills/stop-shell/` | `/stop-shell` skill — audit and kill idle/errored background shells |
 | `skills/graphify/` | `/graphify` skill — any input to knowledge graph |
@@ -33,10 +34,28 @@ cp ~/claude-config/CLAUDE.md ~/.claude/CLAUDE.md
 cp ~/claude-config/settings.json ~/.claude/settings.json
 mkdir -p ~/.claude/skills
 cp -r ~/claude-config/skills/* ~/.claude/skills/
+
+# 4. Set up environment variables (GitHub MCP token, etc.)
+cp ~/claude-config/.env.example ~/.claude/.env
+# Edit ~/.claude/.env and fill in real values
+
+# 5. Install the GitHub MCP server binary (Darwin arm64 example)
+mkdir -p ~/.claude/bin
+curl -L https://github.com/github/github-mcp-server/releases/download/v1.1.2/github-mcp-server_Darwin_arm64.tar.gz \
+  | tar -xz -C ~/.claude/bin/
+chmod +x ~/.claude/bin/github-mcp-server
+
+# 6. Register the GitHub MCP server (reads token from env)
+source ~/.claude/.env
+claude mcp add --scope user -e "GITHUB_PERSONAL_ACCESS_TOKEN=$GITHUB_PERSONAL_ACCESS_TOKEN" \
+  -- github-local ~/.claude/bin/github-mcp-server stdio
 ```
 
 > **Note:** `settings.json` references `~/.claude/statusline-command.sh` for the status line.
 > Copy or recreate that script if you want the custom status bar.
+>
+> **GitHub MCP:** Use `gh auth token` as `GITHUB_PERSONAL_ACCESS_TOKEN` if you have the `gh` CLI.
+> Required scopes: `repo`, `read:org`, `gist`.
 
 ---
 
@@ -127,6 +146,25 @@ Sends messages to a Telegram bot (credentials read from `~/.zshrc`).
 ---
 
 ## Environment Setup
+
+Copy `.env.example` to `~/.claude/.env` and fill in your values:
+
+```bash
+cp ~/claude-config/.env.example ~/.claude/.env
+# then edit ~/.claude/.env
+```
+
+### GitHub MCP (`github-local`)
+
+The `github-local` MCP server gives Claude direct access to GitHub APIs (repos, PRs, issues, etc.). It requires a GitHub token with `repo`, `read:org`, and `gist` scopes in `~/.claude/.env`:
+
+```
+GITHUB_PERSONAL_ACCESS_TOKEN=ghp_your_token_here
+```
+
+If you use the `gh` CLI: `gh auth token` outputs a usable OAuth token.
+
+### Telegram
 
 The Telegram skill reads credentials from `~/.zshrc`:
 
