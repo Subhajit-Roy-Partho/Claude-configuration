@@ -4,6 +4,11 @@
 Always let git use the system's existing identity. The Co-Authored-By trailer is sufficient to attribute Claude's contribution.
 This applies even when cloning into a temp directory or setting up a brand-new repo.
 
+# stop-shell
+- **stop-shell** (`~/.claude/skills/stop-shell/SKILL.md`) - audit and close idle/errored background shells and tasks. Trigger: `/stop-shell`
+When the user types `/stop-shell`, or says "clean up shells", "kill background tasks", "stop everything", or a command fails with `EADDRINUSE`, invoke the Skill tool with `skill: "stop-shell"` before doing anything else.
+Claude should also invoke this proactively at session start if `TaskList` returns stale `in_progress` entries from a prior broken session.
+
 # agents-md
 - **agents-md** (`~/.claude/skills/agents-md/SKILL.md`) - create and maintain AGENTS.md task tracker in the current project. Trigger: `/agents-md`
 When the user types `/agents-md`, invoke the Skill tool with `skill: "agents-md"` before doing anything else.
