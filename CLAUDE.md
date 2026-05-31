@@ -1,3 +1,9 @@
+# Git Identity Rule
+
+**Never set `git config user.name` or `git config user.email`** before commits or pushes — not locally, not globally.
+Always let git use the system's existing identity. The Co-Authored-By trailer is sufficient to attribute Claude's contribution.
+This applies even when cloning into a temp directory or setting up a brand-new repo.
+
 # agents-md
 - **agents-md** (`~/.claude/skills/agents-md/SKILL.md`) - create and maintain AGENTS.md task tracker in the current project. Trigger: `/agents-md`
 When the user types `/agents-md`, invoke the Skill tool with `skill: "agents-md"` before doing anything else.
