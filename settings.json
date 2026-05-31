@@ -1,7 +1,7 @@
 {
   "statusLine": {
     "type": "command",
-    "command": "bash ~/.claude/statusline-command.sh"
+    "command": "bash /Users/subhajitrouy/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
     "clangd-lsp@claude-plugins-official": true,
@@ -18,5 +18,17 @@
   },
   "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
-  "theme": "dark-daltonized"
+  "theme": "dark-daltonized",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) && [ -n \"$PROJECT_ROOT\" ] && [ -f \"$PROJECT_ROOT/graphify-out/graph.json\" ] && cd \"$PROJECT_ROOT\" && graphify update . >> \"$PROJECT_ROOT/graphify-out/.update.log\" 2>&1 &"
+          }
+        ]
+      }
+    ]
+  }
 }
