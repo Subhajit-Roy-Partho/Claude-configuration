@@ -13,6 +13,7 @@ Personal Claude Code configuration — skills, global CLAUDE.md, and settings �
 | `CLAUDE.md` | Global Claude Code instructions loaded into every session |
 | `settings.json` | Global `~/.claude/settings.json` — theme, plugins, effort level |
 | `skills/agents-md/` | `/agents-md` skill — AGENTS.md task tracker for session resilience |
+| `skills/stop-shell/` | `/stop-shell` skill — audit and kill idle/errored background shells |
 | `skills/graphify/` | `/graphify` skill — any input to knowledge graph |
 | `skills/telegram/` | `/telegram` skill — send notifications to Telegram bot |
 
@@ -87,6 +88,30 @@ Turns any folder of code, docs, PDFs, or videos into an interactive knowledge gr
 /graphify --update            # incremental update after changes
 /graphify query "<question>"  # query the graph
 ```
+
+### `/stop-shell` — Background Shell Auditor
+
+Scans all Claude-managed background tasks (`TaskList`) and system shell jobs (`jobs -l`), classifies each one, and kills anything idle, errored, or stalled.
+
+```
+/stop-shell            # audit + auto-kill idle/errored shells
+/stop-shell --dry-run  # preview what would be killed without acting
+/stop-shell --all      # kill ALL background tasks unconditionally
+/stop-shell --errors   # kill only tasks with errors in output
+```
+
+Classification rules:
+- **Active** — output is growing (HMR, timestamps, progress) → kept
+- **Idle** — server running but output is static → killed
+- **Errored** — output contains `Error / Traceback / EADDRINUSE / fatal` → killed + last 5 lines shown
+- **Stalled** — `in_progress` but no output and >5 min old → killed
+
+Also sweeps common dev ports (3000, 5173, 8000, 8765…) for orphaned processes from broken sessions.
+
+Triggered automatically when:
+- A command fails with `EADDRINUSE`
+- The user says "clean up", "kill shells", "stop everything"
+- Session starts with stale `in_progress` tasks from a prior context
 
 ### `/telegram` — Telegram Notifications
 
